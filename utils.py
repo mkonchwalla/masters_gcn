@@ -3,14 +3,13 @@ import torch
 import scipy.sparse as sp
 
 
-def encode_onehot(labels):
-    classes = set(labels)
-    classes_dict = {c: np.identity(len(classes))[i, :] for i, c in
-                    enumerate(classes)}
-    labels_onehot = np.array(list(map(classes_dict.get, labels)),
-                             dtype=np.int32)
-    return labels_onehot
 
+def get_labels(labels):
+    classes = set(labels)
+    classes_dict = {c: i for i,c in enumerate(classes)}
+    labels = np.array([classes_dict[i] for i in labels])
+    return labels
+    
 
 def load_data(path="./data/cora/", dataset="cora"):
     """Load citation network dataset (cora only for now)"""
@@ -21,10 +20,9 @@ def load_data(path="./data/cora/", dataset="cora"):
 
     idx = np.array(inputs[:, 0], dtype=np.int32)
     features = np.array(inputs[:, 1:-1], dtype=np.float32)
-    labels = encode_onehot(inputs[:, -1])
+    labels = get_labels(inputs[:,-1])
 
     "Building the graph"
-    
     idx_map = {j: i for i, j in enumerate(idx)}
 
     edges_unordered = np.genfromtxt("{}{}.cites".format(path, dataset),
@@ -61,3 +59,6 @@ def accuracy(output, labels):
 
 
 # adj, features, labels = load_data()
+# print(adj.shape)
+# print(features.shape)
+# print(labels.shape)

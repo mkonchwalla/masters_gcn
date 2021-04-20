@@ -17,6 +17,8 @@ class GraphConv(Module):
         nn.init.xavier_uniform_(self.weight)
         if bias:
             self.bias = Parameter(torch.FloatTensor(out_features))
+            stdv = 1. / math.sqrt(self.weight.size(1))
+            self.bias.data.uniform_(-stdv, stdv)
             # nn.init.xavier_uniform_(self.bias)
         else:
             self.register_parameter('bias', None)
@@ -41,6 +43,6 @@ class GCN(nn.Module):
         x = F.relu(self.gc1(x, adj))
         x = F.dropout(x, self.dropout, training=self.training)
         x = self.gc2(x, adj)
-        return F.softmax(x, dim=1)
+        return F.log_softmax(x, dim=1)
 
 
